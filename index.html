@@ -3,62 +3,56 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Checking access...</title>
+  <title>Access check</title>
   <style>
     body { font-family: system-ui, Arial, sans-serif; margin: 2rem; }
     .card { max-width: 520px; margin:auto; padding:1.25rem; border:1px solid #ddd; border-radius:14px; }
     .ok { color: #0a7f2e; }
     .err { color: #b00020; }
     .muted { color:#666; font-size:14px; }
-    a.btn { display:inline-block; padding:.6rem 1rem; border-radius:10px; text-decoration:none; border:1px solid #ccc; }
+    a.btn { display:inline-block; margin-top:10px;
+            padding:.6rem 1rem; background:#4CAF50; color:#fff;
+            border-radius:10px; text-decoration:none; }
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>Access check</h2>
-    <div id="msg" class="muted">⏳ Validating token...</div>
-    <div id="actions" style="margin-top:12px;"></div>
+    <h2>Шалгалт</h2>
+    <div id="msg" class="muted">⏳ Токен баталгаажуулж байна...</div>
+    <div id="actions"></div>
   </div>
 
   <script>
-    // 🔧 ТАНЫ WEB APP URL-аа энд оруулна:
-    const WEBAPP = "https://script.google.com/macros/s/AKfycbw7bpvr0lIMsz3un-KV67u5NPUpCrdlMv10G8HGDKDYXTuzO5xx5kZPnYmPlqZvUXw6Jg/exec"; // ж: https://script.google.com/macros/s/AKfycb.../exec
+    const WEBAPP = "https://script.google.com/macros/s/AKfycbw7bpvr0lIMsz3un-KV67u5NPUpCrdlMv10G8HGDKDYXTuzO5xx5kZPnYmPlqZvUXw6Jg/exec";
 
     const params = new URLSearchParams(location.search);
-    const token  = params.get("key") || params.get("token"); // ?key=... эсвэл ?token=...
-    const msg    = document.getElementById("msg");
-    const act    = document.getElementById("actions");
+    const token = params.get("key") || params.get("token");
+    const msg = document.getElementById("msg");
+    const act = document.getElementById("actions");
 
     if (!token) {
       msg.className = "err";
-      msg.textContent = "❌ Token not provided. Use ?key=TOKEN in URL.";
+      msg.textContent = "❌ Токен өгөгдөөгүй байна.";
     } else {
-      // JSONP callback нэр
-      const cbName = "handleCheck_" + Math.random().toString(36).slice(2);
-
-      // Callback функцийг гаргаж өгнө
-      window[cbName] = function (data) {
+      const cbName = "cb_" + Math.random().toString(36).substr(2, 9);
+      window[cbName] = function(data) {
         if (data && data.status === "ok" && data.url) {
           msg.className = "ok";
-          msg.textContent = "✅ Access granted. Redirecting...";
-          // 1 секунд хүлээгээд солих
-          setTimeout(() => { location.replace(data.url); }, 800);
+          msg.textContent = "✅ Амжилттай боллоо. Шилжүүлж байна...";
+          setTimeout(() => location.replace(data.url), 800);
         } else {
           msg.className = "err";
-          msg.textContent = "❌ Access denied.";
-          act.innerHTML = '<a class="btn" href="." >Try again</a>';
+          msg.textContent = "❌ Орох эрхгүй байна.";
+          act.innerHTML = '<a class="btn" href="#" onclick="location.reload()">Дахин оролдоно уу</a>';
         }
-        // script tag-аа цэвэрлэнэ
-        script.remove();
-        delete window[cbName];
+        script.remove(); delete window[cbName];
       };
 
-      // JSONP script таг — CORS асуудалгүйгээр GAS руу хүсэлт явуулна
       const script = document.createElement("script");
       script.src = `${WEBAPP}?key=${encodeURIComponent(token)}&callback=${cbName}`;
       script.onerror = function() {
         msg.className = "err";
-        msg.textContent = "❌ Network error calling server.";
+        msg.textContent = "❌ Алдаа: сервер руу холбогдож чадсангүй.";
       };
       document.body.appendChild(script);
     }
