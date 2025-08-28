@@ -1,31 +1,31 @@
 <!DOCTYPE html>
-<html lang="mn">
+<html>
 <head>
   <meta charset="UTF-8">
   <title>NFC Redirect</title>
 </head>
 <body>
-  <h3>🔑 NFC Access шалгаж байна...</h3>
+  <p>🔑 Шалгаж байна...</p>
 
   <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwjB3-o8kUfvvw0dtT-5m1q1_6D2IRFGiCHZKPOHVx7gKG_8KkaD_0ZZBKUcN6tWrRYWA/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwBxSRXuPt_c9KskAN3dTWH_ZKjSml6WQRWPspv-t1vLhcm2Kfml25Ik0ass_Qx1jkeGA/exec";
 
     const urlParams = new URLSearchParams(window.location.search);
-    const key = urlParams.get("key") || "";
+    const key = urlParams.get("key");
 
-    if (!key) {
-      document.body.innerHTML = "<p style='color:red'>❌ Key олдсонгүй!</p>";
-    } else {
+    if (key) {
       const script = document.createElement("script");
       script.src = WEB_APP_URL + "?key=" + encodeURIComponent(key) + "&callback=handleResponse";
       document.body.appendChild(script);
+    } else {
+      document.body.innerHTML = "<p style='color:red'>❌ Key олдсонгүй</p>";
     }
 
     function handleResponse(response) {
       if (response.status === "ok" && response.redirect) {
         window.location.href = response.redirect;
       } else {
-        document.body.innerHTML = "<p style='color:red'>❌ " + (response.message || "Алдаа гарлаа") + "</p>";
+        document.body.innerHTML = "<p style='color:red'>❌ " + (response.message || "Алдаа") + "</p>";
       }
     }
   </script>
