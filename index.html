@@ -3,38 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <title>NFC Redirect</title>
-  <script>
-    function handleResponse(response) {
-      console.log("Response:", response); // Debug харуулахад
-      if (response.status === "ok") {
-        if (response.redirect) {
-          // Шууд заасан линк рүү шилжүүлнэ
-          window.location.href = response.redirect;
-        } else {
-          document.body.innerHTML = "<h3>⚠️ Redirect линк алга</h3>";
-        }
-      } else {
-        document.body.innerHTML = "<h3>❌ Алдаа: " + response.message + "</h3>";
-      }
-    }
-
-    window.onload = function () {
-      const params = new URLSearchParams(window.location.search);
-      const key = params.get("key");
-      if (!key) {
-        document.body.innerHTML = "<h3>⚠️ Token оруулаагүй байна</h3>";
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.src = "https://script.google.com/macros/s/AKfycbwjB3-o8kUfvvw0dtT-5m1q1_6D2IRFGiCHZKPOHVx7gKG_8KkaD_0ZZBKUcN6tWrRYWA/exec"
-                  + "?key=" + encodeURIComponent(key)
-                  + "&callback=handleResponse";
-      document.body.appendChild(script);
-    };
-  </script>
 </head>
 <body>
-  <h3>🔄 Шалгаад байна...</h3>
+  <h3>🔑 NFC Access шалгаж байна...</h3>
+
+  <script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwjB3-o8kUfvvw0dtT-5m1q1_6D2IRFGiCHZKPOHVx7gKG_8KkaD_0ZZBKUcN6tWrRYWA/exec";
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const key = urlParams.get("key") || "";
+
+    if (!key) {
+      document.body.innerHTML = "<p style='color:red'>❌ Key олдсонгүй!</p>";
+    } else {
+      const script = document.createElement("script");
+      script.src = WEB_APP_URL + "?key=" + encodeURIComponent(key) + "&callback=handleResponse";
+      document.body.appendChild(script);
+    }
+
+    function handleResponse(response) {
+      if (response.status === "ok" && response.redirect) {
+        window.location.href = response.redirect;
+      } else {
+        document.body.innerHTML = "<p style='color:red'>❌ " + (response.message || "Алдаа гарлаа") + "</p>";
+      }
+    }
+  </script>
 </body>
 </html>
