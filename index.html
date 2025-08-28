@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="mn">
 <head>
@@ -7,8 +6,10 @@
   <script>
     // JSONP callback function
     function handleResponse(response) {
+      console.log("Server response:", response); // debug
+
       if (response.status === "ok" && response.redirect) {
-        // Шууд redirect хийх
+        // Шууд redirect
         window.location.href = response.redirect;
       } else {
         document.body.innerHTML = "<h3>❌ Алдаа: " + (response.message || "Unknown error") + "</h3>";
@@ -25,7 +26,7 @@
         return;
       }
 
-      // Apps Script-ийн URL
+      // Apps Script URL
       const script = document.createElement("script");
       script.src = "https://script.google.com/macros/s/AKfycbyBl0X8xuLyDROSC2HfHsfPRVS4Y-GNfO52GDqKZ2R6a-krt2sLWsDnn3dy6H9RspAMhg/exec"
                  + "?key=" + encodeURIComponent(key)
