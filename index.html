@@ -3,29 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <title>NFC Redirect</title>
+  <script>
+    // Apps Script-аас JSONP хариуг хүлээн авах функц
+    function handleResponse(data) {
+      if (data.status === "ok") {
+        // Шууд өөрийн URL руу шилжинэ
+        window.location.href = data.redirect;
+      } else {
+        document.body.innerHTML = "<h3 style='color:red'>" + (data.message || "⛔ Алдаа") + "</h3>";
+      }
+    }
+
+    // Хуудас бүрэн ачаалахад ажиллана
+    window.onload = function() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("key");
+
+      if (token) {
+        const script = document.createElement("script");
+        // === Таны Apps Script publish URL ===
+        script.src = "https://script.google.com/macros/s/AKfycbyBl0X8xuLyDROSC2HfHsfPRVS4Y-GNfO52GDqKZ2R6a-krt2sLWsDnn3dy6H9RspAMhg/exec"
+                   + "?key=" + encodeURIComponent(token)
+                   + "&callback=handleResponse";
+        // head рүү нэмэх нь илүү найдвартай
+        document.head.appendChild(script);
+      } else {
+        document.body.innerHTML = "<h3>⛔ Token олдсонгүй</h3>";
+      }
+    }
+  </script>
 </head>
 <body>
-<script>
-  function handleResponse(data) {
-    if (data.status === "ok") {
-      window.location.href = data.redirect; // Шилжүүлнэ
-    } else {
-      document.body.innerHTML = "<h3 style='color:red'>" + (data.message || "Алдаа") + "</h3>";
-    }
-  }
-
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get("key");
-
-  if (token) {
-    const script = document.createElement("script");
-    script.src = "https://script.google.com/macros/s/AKfycbyBl0X8xuLyDROSC2HfHsfPRVS4Y-GNfO52GDqKZ2R6a-krt2sLWsDnn3dy6H9RspAMhg/exec"
-               + "?key=" + token
-               + "&callback=handleResponse";
-    document.body.appendChild(script);
-  } else {
-    document.body.innerHTML = "<h3>⛔ Token олдсонгүй</h3>";
-  }
-</script>
+  <h3>🔄 Шалгагдаж байна...</h3>
 </body>
 </html>
