@@ -1,61 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Access check</title>
-  <style>
-    body { font-family: system-ui, Arial, sans-serif; margin: 2rem; }
-    .card { max-width: 520px; margin:auto; padding:1.25rem; border:1px solid #ddd; border-radius:14px; }
-    .ok { color: #0a7f2e; }
-    .err { color: #b00020; }
-    .muted { color:#666; font-size:14px; }
-    a.btn { display:inline-block; margin-top:10px;
-            padding:.6rem 1rem; background:#4CAF50; color:#fff;
-            border-radius:10px; text-decoration:none; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h2>Шалгалт</h2>
-    <div id="msg" class="muted">⏳ Токен баталгаажуулж байна...</div>
-    <div id="actions"></div>
-  </div>
 
-  <script>
-    const WEBAPP = "https://script.google.com/macros/s/AKfycbzm0SwI_b9bhyZDFWSFYdJ_-eM3pObAdcouKD4-fP6pKiob1p53XYQPO4OrkaDMy5jBNw/exec";
+<script>
+  function redirectToSite(token) {
+    const nonce = Math.random().toString(36).substr(2, 10); // 🎲 санамсаргүй nonce
+    const cbName = "cb_" + Date.now();
 
-    const params = new URLSearchParams(location.search);
-    const token = params.get("key") || params.get("token");
-    const msg = document.getElementById("msg");
-    const act = document.getElementById("actions");
+    window[cbName] = function(response) {
+      if (response.status === "ok") {
+        window.location.href = response.url;
+      } else {
+        alert("❌ Error: " + response.msg);
+      }
+    };
 
-    if (!token) {
-      msg.className = "err";
-      msg.textContent = "❌ Токен өгөгдөөгүй байна.";
-    } else {
-      const cbName = "cb_" + Math.random().toString(36).substr(2, 9);
-      window[cbName] = function(data) {
-        if (data && data.status === "ok" && data.url) {
-          msg.className = "ok";
-          msg.textContent = "✅ Амжилттай боллоо. Шилжүүлж байна...";
-          setTimeout(() => location.replace(data.url), 800);
-        } else {
-          msg.className = "err";
-          msg.textContent = "❌ Орох эрхгүй байна.";
-          act.innerHTML = '<a class="btn" href="#" onclick="location.reload()">Дахин оролдоно уу</a>';
-        }
-        script.remove(); delete window[cbName];
-      };
+    const script = document.createElement("script");
+    script.src = "https://script.google.com/macros/s/AKfycbzm0SwI_b9bhyZDFWSFYdJ_-eM3pObAdcouKD4-fP6pKiob1p53XYQPO4OrkaDMy5jBNw/exec"
+      + "?key=" + encodeURIComponent(token)
+      + "&nonce=" + encodeURIComponent(nonce)
+      + "&callback=" + cbName;
 
-      const script = document.createElement("script");
-      script.src = `${WEBAPP}?key=${encodeURIComponent(token)}&callback=${cbName}`;
-      script.onerror = function() {
-        msg.className = "err";
-        msg.textContent = "❌ Алдаа: сервер руу холбогдож чадсангүй.";
-      };
-      document.body.appendChild(script);
-    }
-  </script>
-</body>
-</html>
+    document.body.appendChild(script);
+  }
+
+  // NFC → линк дээр key=token1 гэж уншихад автоматаар ажиллуулна
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get("key");
+  if (token) {
+    redirectToSite(token);
+  }
+</script>
