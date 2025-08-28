@@ -4,27 +4,28 @@
   <meta charset="UTF-8">
   <title>NFC Redirect</title>
   <script>
-    // Apps Script-аас буцаах callback функц
     function handleResponse(response) {
-      if (response.status === "ok" && response.redirect) {
-        // Шууд заасан хуудас руу шилжүүлнэ
-        window.location.href = response.redirect;
+      console.log("Response:", response); // Debug харуулахад
+      if (response.status === "ok") {
+        if (response.redirect) {
+          // Шууд заасан линк рүү шилжүүлнэ
+          window.location.href = response.redirect;
+        } else {
+          document.body.innerHTML = "<h3>⚠️ Redirect линк алга</h3>";
+        }
       } else {
         document.body.innerHTML = "<h3>❌ Алдаа: " + response.message + "</h3>";
       }
     }
 
-    // Token авах + Apps Script руу хүсэлт илгээх
     window.onload = function () {
       const params = new URLSearchParams(window.location.search);
       const key = params.get("key");
-
       if (!key) {
         document.body.innerHTML = "<h3>⚠️ Token оруулаагүй байна</h3>";
         return;
       }
 
-      // JSONP script динамикаар оруулна
       const script = document.createElement("script");
       script.src = "https://script.google.com/macros/s/AKfycbyBl0X8xuLyDROSC2HfHsfPRVS4Y-GNfO52GDqKZ2R6a-krt2sLWsDnn3dy6H9RspAMhg/exec"
                   + "?key=" + encodeURIComponent(key)
@@ -34,6 +35,6 @@
   </script>
 </head>
 <body>
-  <h3>🔄 Уншиж байна...</h3>
+  <h3>🔄 Шалгаад байна...</h3>
 </body>
 </html>
