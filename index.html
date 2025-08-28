@@ -1,29 +1,31 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <title>NFC Redirect</title>
+</head>
+<body>
 <script>
   function handleResponse(data) {
     if (data.status === "ok") {
-      if (data.session) {
-        const script = document.createElement("script");
-        script.src = data.redirect;
-        document.body.appendChild(script);
-      } else if (data.redirect) {
-        window.location.href = data.redirect;
-      }
+      window.location.href = data.redirect; // Шилжүүлнэ
     } else {
-      alert(data.message);
+      document.body.innerHTML = "<h3 style='color:red'>" + (data.message || "Алдаа") + "</h3>";
     }
   }
 
   const params = new URLSearchParams(window.location.search);
-  const token = params.get('key');
+  const token = params.get("key");
 
-  if (!token) {
-    document.body.innerHTML = "<p style='color:red'>Token олдсонгүй</p>";
-  } else {
+  if (token) {
     const script = document.createElement("script");
-    script.src =
-      "https://script.google.com/macros/s/AKfycbzDqjMoyfqNesmHZ88d1PTZWkp_h0B9ODAm-dCHDwUI0qPLdOzw6C9AW44ZTM8HxzRH-w/exec?" +
-      token +
-      "&callback=handleResponse";
+    script.src = "https://script.google.com/macros/s/AKfycbyBl0X8xuLyDROSC2HfHsfPRVS4Y-GNfO52GDqKZ2R6a-krt2sLWsDnn3dy6H9RspAMhg/exec"
+               + "?key=" + token
+               + "&callback=handleResponse";
     document.body.appendChild(script);
+  } else {
+    document.body.innerHTML = "<h3>⛔ Token олдсонгүй</h3>";
   }
 </script>
+</body>
+</html>
