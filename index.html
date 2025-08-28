@@ -1,52 +1,39 @@
 <!DOCTYPE html>
 <html lang="mn">
 <head>
-  <meta charset="UTF-8">
-  <title>Шалгалт</title>
+  <meta charset="UTF-8" />
+  <title>NFC Redirect</title>
+  <script>
+    async function init() {
+      const params = new URLSearchParams(window.location.search);
+      const key = params.get("key");
+
+      if (!key) {
+        document.body.innerHTML = "<h3>❌ Token not found</h3>";
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          "https://script.google.com/macros/s/AKfycbwr1vJmTCsa4XezBA3ZFUhXYOU6eYFxvaqGoPEkoGOyyH0Tq6C5pokFKddBrHr_lNPzcA/exec" + key
+        );
+        const result = await response.json();
+
+        if (result.status === "OK") {
+          window.location.href = result.redirectUrl;
+        } else if (result.status === "EXPIRED") {
+          document.body.innerHTML = "<h3>⚠️ Энэ линк өмнө нь ашиглагдсан</h3>";
+        } else {
+          document.body.innerHTML = "<h3>❌ Алдаа: " + result.message + "</h3>";
+        }
+      } catch (err) {
+        document.body.innerHTML = "<h3>❌ Network error</h3>";
+      }
+    }
+    window.onload = init;
+  </script>
 </head>
 <body>
-  <h2>Шалгалтанд нэвтрэх</h2>
-  <div id="message">Түр хүлээнэ үү...</div>
-
-  <script>
-    // URL-аас key авах (?key=token1)
-    const params = new URLSearchParams(window.location.search);
-    const key = params.get("key");
-
-    // Санамсаргүй nonce үүсгэх
-    function generateNonce(length = 16) {
-      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-      let result = "";
-      for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return result;
-    }
-
-    if (!key) {
-      document.getElementById("message").innerHTML =
-        "<span style='color:red'>❌ Алдаа: Key олдсонгүй.</span>";
-    } else {
-      const nonce = generateNonce();
-
-      // Google Apps Script API хаяг
-      const apiUrl = "https://script.google.com/macros/s/AKfycbzFGrF4iiQcI5A5CzanChTX5FNnFKga6QgvnofyGH98uNLtIqX3OVo7nDNqISxvT6Z68g/exec";
-
-      fetch(`${apiUrl}?key=${key}&nonce=${nonce}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            window.location.href = data.url;  // Удирдах сайт руу орно
-          } else {
-            document.getElementById("message").innerHTML =
-              "<span style='color:red'>❌ " + data.message + "</span>";
-          }
-        })
-        .catch(err => {
-          document.getElementById("message").innerHTML =
-            "<span style='color:red'>❌ Сервер рүү холбогдож чадсангүй.</span>";
-        });
-    }
-  </script>
+  <h3>Уншиж байна...</h3>
 </body>
 </html>
