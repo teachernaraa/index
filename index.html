@@ -14,7 +14,7 @@
     if (!key) {
       document.body.innerHTML = "<p style='color:red'>❌ Token олдсонгүй</p>";
     } else {
-      fetch("https://script.google.com/macros/s/AKfycby-bRNVWqVcWBXc2yOly1R9HW_HbefnXm6q-Prda9dCtLg00I212w4gRCBv_RQTkzmd/exec?key" + key + (session ? "&session=" + session : ""))
+      fetch("https://script.google.com/macros/s/AKfycby-bRNVWqVcWBXc2yOly1R9HW_HbefnXm6q-Prda9dCtLg00I212w4gRCBv_RQTkzmd/exec" + key + (session ? "&session=" + session : ""))
         .then(res => res.json())
         .then(data => {
           if (data.status === "ok") {
