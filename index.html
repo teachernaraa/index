@@ -4,33 +4,31 @@
   <meta charset="UTF-8">
   <title>NFC Redirect</title>
   <script>
-    // JSONP callback function
+    // Apps Script-аас буцаах callback функц
     function handleResponse(response) {
-      console.log("Server response:", response); // debug
-
       if (response.status === "ok" && response.redirect) {
-        // Шууд redirect
+        // Шууд заасан хуудас руу шилжүүлнэ
         window.location.href = response.redirect;
       } else {
-        document.body.innerHTML = "<h3>❌ Алдаа: " + (response.message || "Unknown error") + "</h3>";
+        document.body.innerHTML = "<h3>❌ Алдаа: " + response.message + "</h3>";
       }
     }
 
-    // Script динамикаар ачаалах
+    // Token авах + Apps Script руу хүсэлт илгээх
     window.onload = function () {
-      const urlParams = new URLSearchParams(window.location.search);
-      const key = urlParams.get("key");
+      const params = new URLSearchParams(window.location.search);
+      const key = params.get("key");
 
       if (!key) {
-        document.body.innerHTML = "<h3>⚠️ Token байхгүй байна</h3>";
+        document.body.innerHTML = "<h3>⚠️ Token оруулаагүй байна</h3>";
         return;
       }
 
-      // Apps Script URL
+      // JSONP script динамикаар оруулна
       const script = document.createElement("script");
       script.src = "https://script.google.com/macros/s/AKfycbyBl0X8xuLyDROSC2HfHsfPRVS4Y-GNfO52GDqKZ2R6a-krt2sLWsDnn3dy6H9RspAMhg/exec"
-                 + "?key=" + encodeURIComponent(key)
-                 + "&callback=handleResponse";
+                  + "?key=" + encodeURIComponent(key)
+                  + "&callback=handleResponse";
       document.body.appendChild(script);
     };
   </script>
