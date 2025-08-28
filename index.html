@@ -1,32 +1,25 @@
-<!DOCTYPE html>
-<html lang="mn">
-<head>
-  <meta charset="UTF-8">
-  <title>NFC Access Redirect</title>
-</head>
-<body>
-  <h3>🔄 Шалгаад байна, түр хүлээнэ үү...</h3>
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const key = params.get("key");
-    const session = params.get("session") || "";
-
-    if (!key) {
-      document.body.innerHTML = "<p style='color:red'>❌ Token олдсонгүй</p>";
+<script>
+  function handleResponse(data) {
+    if (data.status === "ok") {
+      if (data.session) {
+        // 🔑 Session авсан → шууд дахин дуудна
+        const script = document.createElement("script");
+        script.src = data.redirect;
+        document.body.appendChild(script);
+      } else if (data.redirect) {
+        // ✅ Session баталгаажсан → жинхэнэ линк рүү оруулна
+        window.location.href = data.redirect;
+      }
     } else {
-      fetch("https://script.google.com/macros/s/AKfycby-bRNVWqVcWBXc2yOly1R9HW_HbefnXm6q-Prda9dCtLg00I212w4gRCBv_RQTkzmd/exec" + key + (session ? "&session=" + session : ""))
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === "ok") {
-            window.location.href = data.redirect;
-          } else {
-            document.body.innerHTML = "<p style='color:red'>❌ " + data.message + "</p>";
-          }
-        })
-        .catch(err => {
-          document.body.innerHTML = "<p style='color:red'>⚠️ Алдаа гарлаа: " + err + "</p>";
-        });
+      alert(data.message);
     }
-  </script>
-</body>
-</html>
+  }
+
+  // NFC → токен уншина
+  const token = "token1";
+
+  // Эхний удаад session-гүй дуудна
+  const script = document.createElement("script");
+  script.src = "https://script.google.com/macros/s/AKfycbwu2y74Wlk0PwhUAx9Z84ZP8vIMAPnNEOduGD_pCILr6x8RoqErtjcwm9O63MUVueQ5/exec?key=" + token + "&callback=handleResponse";
+  document.body.appendChild(script);
+</script>
