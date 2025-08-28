@@ -1,39 +1,40 @@
+
 <!DOCTYPE html>
 <html lang="mn">
 <head>
   <meta charset="UTF-8">
   <title>NFC Redirect</title>
   <script>
-    // Apps Script-аас JSONP хариуг хүлээн авах функц
-    function handleResponse(data) {
-      if (data.status === "ok") {
-        // Шууд өөрийн URL руу шилжинэ
-        window.location.href = data.redirect;
+    // JSONP callback function
+    function handleResponse(response) {
+      if (response.status === "ok" && response.redirect) {
+        // Шууд redirect хийх
+        window.location.href = response.redirect;
       } else {
-        document.body.innerHTML = "<h3 style='color:red'>" + (data.message || "⛔ Алдаа") + "</h3>";
+        document.body.innerHTML = "<h3>❌ Алдаа: " + (response.message || "Unknown error") + "</h3>";
       }
     }
 
-    // Хуудас бүрэн ачаалахад ажиллана
-    window.onload = function() {
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get("key");
+    // Script динамикаар ачаалах
+    window.onload = function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const key = urlParams.get("key");
 
-      if (token) {
-        const script = document.createElement("script");
-        // === Таны Apps Script publish URL ===
-        script.src = "https://script.google.com/macros/s/AKfycbyBl0X8xuLyDROSC2HfHsfPRVS4Y-GNfO52GDqKZ2R6a-krt2sLWsDnn3dy6H9RspAMhg/exec"
-                   + "?key=" + encodeURIComponent(token)
-                   + "&callback=handleResponse";
-        // head рүү нэмэх нь илүү найдвартай
-        document.head.appendChild(script);
-      } else {
-        document.body.innerHTML = "<h3>⛔ Token олдсонгүй</h3>";
+      if (!key) {
+        document.body.innerHTML = "<h3>⚠️ Token байхгүй байна</h3>";
+        return;
       }
-    }
+
+      // Apps Script-ийн URL
+      const script = document.createElement("script");
+      script.src = "https://script.google.com/macros/s/AKfycbyBl0X8xuLyDROSC2HfHsfPRVS4Y-GNfO52GDqKZ2R6a-krt2sLWsDnn3dy6H9RspAMhg/exec"
+                 + "?key=" + encodeURIComponent(key)
+                 + "&callback=handleResponse";
+      document.body.appendChild(script);
+    };
   </script>
 </head>
 <body>
-  <h3>🔄 Шалгагдаж байна...</h3>
+  <h3>🔄 Уншиж байна...</h3>
 </body>
 </html>
