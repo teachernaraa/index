@@ -1,47 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mn">
 <head>
   <meta charset="UTF-8">
-  <title>Access Control</title>
+  <title>Шалгалт</title>
 </head>
 <body>
-  <h3>⏳ Token шалгаж байна...</h3>
+  <h2>Шалгалтанд нэвтрэх</h2>
+  <div id="message">Түр хүлээнэ үү...</div>
 
   <script>
-    function redirectToSite(token) {
-      const nonce = Math.random().toString(36).substr(2, 10); // 🎲 Random nonce
-      const cbName = "cb_" + Date.now();
+    // URL-аас key авах (?key=token1)
+    const params = new URLSearchParams(window.location.search);
+    const key = params.get("key");
 
-      // Callback function
-      window[cbName] = function(response) {
-        if (response.status === "ok") {
-          document.body.innerHTML = "<h3>✅ Access granted! Redirecting...</h3>";
-          setTimeout(() => {
-            window.location.href = response.url;
-          }, 1000);
-        } else {
-          document.body.innerHTML = "<h3>❌ Access denied: " + response.msg + "</h3>";
-        }
-      };
-
-      // JSONP call to Apps Script
-      const script = document.createElement("script");
-      script.src = "https://script.google.com/macros/s/AKfycbzAGmHWHh9SP5DrDawJL80YM9JGD6ZEYQe4Sz8N7dv7jtaY6BKNmk5N4ruxmvwN9dBjhw/exec"
-        + "?key=" + encodeURIComponent(token)
-        + "&nonce=" + encodeURIComponent(nonce)
-        + "&callback=" + cbName;
-
-      document.body.appendChild(script);
+    // Санамсаргүй nonce үүсгэх
+    function generateNonce(length = 16) {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let result = "";
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
     }
 
-    // URL-аас token унших
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get("key");
-
-    if (token) {
-      redirectToSite(token);
+    if (!key) {
+      document.getElementById("message").innerHTML =
+        "<span style='color:red'>❌ Алдаа: Key олдсонгүй.</span>";
     } else {
-      document.body.innerHTML = "<h3>❌ Token олдсонгүй</h3>";
+      const nonce = generateNonce();
+
+      // Google Apps Script API хаяг
+      const apiUrl = "https://script.google.com/macros/s/AKfycbzFGrF4iiQcI5A5CzanChTX5FNnFKga6QgvnofyGH98uNLtIqX3OVo7nDNqISxvT6Z68g/exec";
+
+      fetch(`${apiUrl}?key=${key}&nonce=${nonce}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            window.location.href = data.url;  // Удирдах сайт руу орно
+          } else {
+            document.getElementById("message").innerHTML =
+              "<span style='color:red'>❌ " + data.message + "</span>";
+          }
+        })
+        .catch(err => {
+          document.getElementById("message").innerHTML =
+            "<span style='color:red'>❌ Сервер рүү холбогдож чадсангүй.</span>";
+        });
     }
   </script>
 </body>
