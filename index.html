@@ -2,12 +2,10 @@
   function handleResponse(data) {
     if (data.status === "ok") {
       if (data.session) {
-        // 🔑 Session авсан → шууд дахин дуудна
         const script = document.createElement("script");
         script.src = data.redirect;
         document.body.appendChild(script);
       } else if (data.redirect) {
-        // ✅ Session баталгаажсан → жинхэнэ линк рүү оруулна
         window.location.href = data.redirect;
       }
     } else {
@@ -15,11 +13,17 @@
     }
   }
 
-  // NFC → токен уншина
-  const token = "token1";
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('key');
 
-  // Эхний удаад session-гүй дуудна
-  const script = document.createElement("script");
-  script.src = "https://script.google.com/macros/s/AKfycbwu2y74Wlk0PwhUAx9Z84ZP8vIMAPnNEOduGD_pCILr6x8RoqErtjcwm9O63MUVueQ5/exec?key=" + token + "&callback=handleResponse";
-  document.body.appendChild(script);
+  if (!token) {
+    document.body.innerHTML = "<p style='color:red'>Token олдсонгүй</p>";
+  } else {
+    const script = document.createElement("script");
+    script.src =
+      "https://script.google.com/macros/s/AKfycbzDqjMoyfqNesmHZ88d1PTZWkp_h0B9ODAm-dCHDwUI0qPLdOzw6C9AW44ZTM8HxzRH-w/exec?key=" +
+      token +
+      "&callback=handleResponse";
+    document.body.appendChild(script);
+  }
 </script>
