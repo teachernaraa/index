@@ -1,30 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Access Control</title>
+</head>
+<body>
+  <h3>⏳ Token шалгаж байна...</h3>
 
-<script>
-  function redirectToSite(token) {
-    const nonce = Math.random().toString(36).substr(2, 10); // 🎲 санамсаргүй nonce
-    const cbName = "cb_" + Date.now();
+  <script>
+    function redirectToSite(token) {
+      const nonce = Math.random().toString(36).substr(2, 10); // 🎲 Random nonce
+      const cbName = "cb_" + Date.now();
 
-    window[cbName] = function(response) {
-      if (response.status === "ok") {
-        window.location.href = response.url;
-      } else {
-        alert("❌ Error: " + response.msg);
-      }
-    };
+      // Callback function
+      window[cbName] = function(response) {
+        if (response.status === "ok") {
+          document.body.innerHTML = "<h3>✅ Access granted! Redirecting...</h3>";
+          setTimeout(() => {
+            window.location.href = response.url;
+          }, 1000);
+        } else {
+          document.body.innerHTML = "<h3>❌ Access denied: " + response.msg + "</h3>";
+        }
+      };
 
-    const script = document.createElement("script");
-    script.src = "https://script.google.com/macros/s/AKfycbzm0SwI_b9bhyZDFWSFYdJ_-eM3pObAdcouKD4-fP6pKiob1p53XYQPO4OrkaDMy5jBNw/exec"
-      + "?key=" + encodeURIComponent(token)
-      + "&nonce=" + encodeURIComponent(nonce)
-      + "&callback=" + cbName;
+      // JSONP call to Apps Script
+      const script = document.createElement("script");
+      script.src = "https://script.google.com/macros/s/AKfycbzm0SwI_b9bhyZDFWSFYdJ_-eM3pObAdcouKD4-fP6pKiob1p53XYQPO4OrkaDMy5jBNw/exec"
+        + "?key=" + encodeURIComponent(token)
+        + "&nonce=" + encodeURIComponent(nonce)
+        + "&callback=" + cbName;
 
-    document.body.appendChild(script);
-  }
+      document.body.appendChild(script);
+    }
 
-  // NFC → линк дээр key=token1 гэж уншихад автоматаар ажиллуулна
-  const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("key");
-  if (token) {
-    redirectToSite(token);
-  }
-</script>
+    // URL-аас token унших
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("key");
+
+    if (token) {
+      redirectToSite(token);
+    } else {
+      document.body.innerHTML = "<h3>❌ Token олдсонгүй</h3>";
+    }
+  </script>
+</body>
+</html>
