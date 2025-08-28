@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting...</title>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const target = urlParams.get("url");
+    if (target) {
+      window.location.replace(target);
+    } else {
+      document.body.innerHTML = "<h2>❌ Redirect URL not found</h2>";
+    }
+  </script>
+</head>
+<body>
+  <p>⏳ Redirecting...</p>
+</body>
+</html>
